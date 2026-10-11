@@ -1,0 +1,568 @@
+/* Phase 2 Styles: Odontogram, Prescriptions, File Vault, Inventory, Reports, Settings, Audit Trail */
+
+/* ========================================================= */
+/* 1. DENTAL CHART / ODONTOGRAM                              */
+/* ========================================================= */
+.odontogram-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.odontogram-patient-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--bg-surface);
+  padding: 16px 22px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.tooth-status-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  background: var(--bg-surface-subtle);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-slate-700);
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1.5px solid transparent;
+}
+
+.swatch-healthy { background: #FFFFFF; border-color: var(--emerald-600); }
+.swatch-decayed { background: var(--crimson-500); }
+.swatch-missing { background: var(--color-slate-200); border-style: dashed; }
+.swatch-crown { background: var(--amber-500); }
+.swatch-rootcanal { background: #EA580C; }
+.swatch-implant { background: var(--teal-600); }
+.swatch-filling { background: var(--color-slate-700); }
+
+/* Arch Grids */
+.arch-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.arch-header {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-slate-500);
+  text-align: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.teeth-grid-row {
+  display: grid;
+  grid-template-columns: repeat(16, 1fr);
+  gap: 6px;
+  background: var(--bg-surface);
+  padding: 18px 12px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  overflow-x: auto;
+}
+
+.tooth-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-surface-subtle);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+  min-width: 44px;
+}
+
+.tooth-cell:hover {
+  border-color: var(--teal-600);
+  background: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.tooth-cell.selected {
+  border-color: var(--teal-600);
+  background: var(--teal-50);
+  box-shadow: 0 0 0 2px var(--teal-600);
+}
+
+.tooth-number {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--color-slate-600);
+  margin-bottom: 4px;
+}
+
+.tooth-graphic {
+  width: 26px;
+  height: 32px;
+  border-radius: 6px;
+  border: 2px solid var(--emerald-600);
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: #FFFFFF;
+  transition: all var(--transition-fast);
+}
+
+/* Tooth Status Modifiers */
+.status-healthy .tooth-graphic {
+  border-color: var(--emerald-600);
+  background: #FFFFFF;
+  color: var(--emerald-700);
+}
+
+.status-decayed .tooth-graphic {
+  border-color: var(--crimson-600);
+  background: var(--crimson-500);
+  color: #FFFFFF;
+}
+
+.status-missing .tooth-graphic {
+  border-color: var(--color-slate-400);
+  background: var(--color-slate-100);
+  border-style: dashed;
+  color: var(--color-slate-400);
+}
+
+.status-crown .tooth-graphic {
+  border-color: var(--amber-600);
+  background: var(--amber-500);
+  color: #FFFFFF;
+}
+
+.status-root-canal .tooth-graphic {
+  border-color: #C2410C;
+  background: #EA580C;
+  color: #FFFFFF;
+}
+
+.status-implant .tooth-graphic {
+  border-color: var(--teal-700);
+  background: var(--teal-600);
+  color: #FFFFFF;
+}
+
+.status-filling .tooth-graphic {
+  border-color: var(--color-slate-800);
+  background: var(--color-slate-700);
+  color: #FFFFFF;
+}
+
+.tooth-status-label {
+  font-size: 9px;
+  font-weight: 700;
+  margin-top: 4px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 42px;
+}
+
+/* ========================================================= */
+/* 2. PRESCRIPTION GENERATOR                                 */
+/* ========================================================= */
+.prescription-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+}
+
+.rx-pad-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  font-family: var(--font-sans);
+}
+
+.rx-pad-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2px solid var(--color-slate-900);
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+}
+
+.rx-symbol {
+  font-size: 38px;
+  font-weight: 800;
+  font-family: serif;
+  color: var(--teal-800);
+  line-height: 1;
+}
+
+.rx-body-box {
+  min-height: 180px;
+  border-bottom: 1px dashed var(--border-subtle);
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.rx-med-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--color-slate-900);
+  margin-bottom: 6px;
+}
+
+.rx-instructions {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--color-slate-700);
+}
+
+.rx-sig-line {
+  margin-top: 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.sig-border {
+  border-top: 1.5px solid var(--color-slate-800);
+  width: 220px;
+  padding-top: 6px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ========================================================= */
+/* 3. FILE UPLOAD & X-RAY VAULT                              */
+/* ========================================================= */
+.upload-dropzone {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 34px 20px;
+  text-align: center;
+  background: var(--bg-surface-subtle);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-dropzone:hover {
+  border-color: var(--teal-600);
+  background: var(--teal-50);
+}
+
+.files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+
+.file-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.file-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--teal-600);
+}
+
+.file-preview-thumb {
+  height: 140px;
+  background: #0B1320;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.file-preview-thumb svg {
+  color: var(--teal-400);
+  opacity: 0.85;
+}
+
+.file-meta-padding {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ========================================================= */
+/* 4. INVENTORY MANAGEMENT                                   */
+/* ========================================================= */
+.inventory-alert-banner {
+  background: var(--amber-50);
+  border: 1px solid var(--amber-200);
+  border-left: 4px solid var(--amber-600);
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.stock-stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-stepper {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  background: var(--color-slate-100);
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-stepper:hover {
+  background: var(--teal-600);
+  color: #FFFFFF;
+  border-color: var(--teal-600);
+}
+
+/* ========================================================= */
+/* 5. REPORTING & ANALYTICS                                  */
+/* ========================================================= */
+.reports-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.chart-card-split {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 22px;
+}
+
+/* ========================================================= */
+/* PHASE 3: DRAG & DROP, CONFLICTS, SMS & DUPLICATE CHECKS   */
+/* ========================================================= */
+
+/* 1. Drag and Drop Calendar Styles */
+.appt-event-card[draggable="true"] {
+  cursor: grab;
+}
+
+.appt-event-card.dragging {
+  opacity: 0.45;
+  transform: scale(0.96);
+  cursor: grabbing;
+}
+
+.grid-operatory-cell.drag-over {
+  background-color: var(--teal-50) !important;
+  border: 2px dashed var(--teal-600) !important;
+  position: relative;
+}
+
+.grid-operatory-cell.drag-over::after {
+  content: 'Drop to Reschedule';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal-700);
+  background: rgba(240, 253, 250, 0.7);
+  pointer-events: none;
+}
+
+.appt-event-card.status-double-booked {
+  border-left-color: var(--crimson-600) !important;
+  background-color: #FEF2F2 !important;
+}
+
+/* 2. Duplicate Detection Warning Box */
+.duplicate-warning-box {
+  background: var(--amber-50);
+  border: 1.5px solid var(--amber-300);
+  border-left: 4px solid var(--amber-600);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: message-pop 0.25s ease;
+}
+
+.duplicate-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--amber-800);
+}
+
+.duplicate-desc {
+  font-size: 12px;
+  color: var(--color-slate-700);
+}
+
+/* 3. Smartphone Simulated SMS Modal */
+.phone-preview-shell {
+  width: 320px;
+  background: #0F172A;
+  border-radius: 36px;
+  padding: 18px 14px;
+  box-shadow: var(--shadow-xl);
+  border: 4px solid #334155;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+}
+
+.phone-screen {
+  background: #FFFFFF;
+  border-radius: 24px;
+  min-height: 440px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.phone-header {
+  background: var(--color-slate-100);
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sms-thread {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #F8FAFC;
+}
+
+.sms-bubble {
+  background: #E2E8F0;
+  color: var(--color-slate-900);
+  padding: 10px 14px;
+  border-radius: 16px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  max-width: 88%;
+  align-self: flex-start;
+  border-bottom-left-radius: 4px;
+}
+
+.sms-bubble.outbound {
+  background: var(--teal-700);
+  color: #FFFFFF;
+  align-self: flex-end;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 4px;
+}
+
+.sms-time {
+  font-size: 10px;
+  color: var(--color-slate-400);
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* 4. Role Permissions Notice Bar */
+.role-notice-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--color-slate-100);
+  color: var(--color-slate-700);
+  border: 1px solid var(--border-subtle);
+}
+
+.btn.btn-disabled-role {
+  opacity: 0.55;
+  cursor: not-allowed;
+  position: relative;
+}
+
+/* Responsive Overrides */
+@media (max-width: 1024px) {
+  .teeth-grid-row {
+    grid-template-columns: repeat(8, 1fr);
+  }
+  .prescription-layout, .chart-card-split {
+    grid-template-columns: 1fr;
+  }
+  .reports-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .teeth-grid-row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .reports-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
