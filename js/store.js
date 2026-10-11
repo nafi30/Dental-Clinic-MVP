@@ -732,6 +732,16 @@ class Store {
   constructor() {
     this.data = this.loadData();
     this.listeners = [];
+    this.isBackendOnline = false;
+    this.ws = null;
+
+    if (typeof window !== 'undefined') {
+      if (window.location.protocol.startsWith('http')) {
+        setTimeout(() => this.initBackendSync(), 150);
+      } else {
+        this.updateStatusBadge(false, 'Local Demo Mode (file://)');
+      }
+    }
   }
 
   loadData() {
@@ -755,9 +765,12 @@ class Store {
     this.notify();
   }
 
-  resetDemoData() {
+  async resetDemoData() {
     this.data = JSON.parse(JSON.stringify(INITIAL_DATA));
     this.saveData();
+    if (this.isBackendOnline) {
+      this.apiCall('/api/demo/reset', 'POST');
+    }
   }
 
   subscribe(listener) {
@@ -771,11 +784,185 @@ class Store {
     this.listeners.forEach(fn => fn(this.data));
   }
 
+  // Live Backend & WebSocket Sync
+  async initBackendSync() {
+    try {
+      const res = await fetch('/api/health');
+      if (res.ok) {
+        this.isBackendOnline = true;
+        this.updateStatusBadge(true, 'Backend: Online (SQLite)');
+        await this.syncFullStateFromBackend();
+        this.connectWebSocket();
+      } else {
+        this.updateStatusBadge(false, 'Local Demo Mode');
+      }
+    } catch (e) {
+      this.isBackendOnline = false;
+      this.updateStatusBadge(false, 'Local Demo Mode');
+    }
+  }
+
+  updateStatusBadge(isOnline, text) {
+    const badge = document.getElementById('backend-status-badge');
+    const dot = document.getElementById('backend-status-dot');
+    const label = document.getElementById('backend-status-text');
+    if (!badge || !dot || !label) return;
+
+    if (isOnline) {
+      dot.style.background = '#10B981';
+      badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+      badge.style.color = '#0D9488';
+      label.textContent = text || 'Backend: Online (SQLite)';
+    } else {
+      dot.style.background = '#94A3B8';
+      badge.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+      badge.style.color = '#64748B';
+      label.textContent = text || 'Local Demo Mode';
+    }
+  }
+
+  async syncFullStateFromBackend() {
+    try {
+      const [
+        patientsRes,
+        apptsRes,
+        tpRes,
+        invRes,
+        inventoryRes,
+        reportsRes,
+        settingsRes,
+        prescriptionsRes,
+        filesRes,
+        auditRes,
+        commsRes,
+        aiMetricsRes,
+        aiCallsRes,
+        userRes
+      ] = await Promise.all([
+        fetch('/api/patients').then(r => r.json()).catch(() => null),
+        fetch('/api/appointments').then(r => r.json()).catch(() => null),
+        fetch('/api/treatment-plans').then(r => r.json()).catch(() => null),
+        fetch('/api/invoices').then(r => r.json()).catch(() => null),
+        fetch('/api/inventory').then(r => r.json()).catch(() => null),
+        fetch('/api/reports').then(r => r.json()).catch(() => null),
+        fetch('/api/settings').then(r => r.json()).catch(() => null),
+        fetch('/api/prescriptions').then(r => r.json()).catch(() => null),
+        fetch('/api/files').then(r => r.json()).catch(() => null),
+        fetch('/api/audit-logs').then(r => r.json()).catch(() => null),
+        fetch('/api/communications').then(r => r.json()).catch(() => null),
+        fetch('/api/ai/metrics').then(r => r.json()).catch(() => null),
+        fetch('/api/ai/call-logs').then(r => r.json()).catch(() => null),
+        fetch('/api/users/current').then(r => r.json()).catch(() => null)
+      ]);
+
+      if (patientsRes && patientsRes.data) this.data.patients = patientsRes.data;
+      if (apptsRes && apptsRes.data) this.data.appointments = apptsRes.data;
+      if (tpRes && tpRes.data) this.data.treatmentPlans = tpRes.data;
+      if (invRes && invRes.data) this.data.invoices = invRes.data;
+      if (inventoryRes && inventoryRes.data) this.data.inventory = inventoryRes.data;
+      if (reportsRes && reportsRes.data) this.data.reports = reportsRes.data;
+      if (settingsRes && settingsRes.data) this.data.settings = settingsRes.data;
+      if (prescriptionsRes && prescriptionsRes.data) this.data.prescriptions = prescriptionsRes.data;
+      if (filesRes && filesRes.data) this.data.files = filesRes.data;
+      if (auditRes && auditRes.data) this.data.auditLog = auditRes.data;
+      if (commsRes && commsRes.data) this.data.communications = commsRes.data;
+      if (aiMetricsRes && aiMetricsRes.data) this.data.aiReceptionist.metrics = aiMetricsRes.data;
+      if (aiCallsRes && aiCallsRes.data) this.data.aiReceptionist.callLogs = aiCallsRes.data;
+      if (userRes && userRes.data) this.data.currentUser = userRes.data;
+
+      this.saveData();
+      if (window.rerenderCurrentView) window.rerenderCurrentView();
+    } catch (e) {
+      console.warn('[Sync] State sync notice:', e.message);
+    }
+  }
+
+  connectWebSocket() {
+    try {
+      const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${wsProtocol}//${location.host}/ws`;
+      this.ws = new WebSocket(wsUrl);
+
+      this.ws.onopen = () => {
+        this.updateStatusBadge(true, 'Backend: Online (Live Sync)');
+      };
+
+      this.ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          this.handleLiveEvent(msg);
+        } catch (e) {}
+      };
+
+      this.ws.onclose = () => {
+        setTimeout(() => {
+          if (this.isBackendOnline) this.connectWebSocket();
+        }, 4000);
+      };
+    } catch (e) {}
+  }
+
+  handleLiveEvent(msg) {
+    if (!msg || !msg.type) return;
+    switch (msg.type) {
+      case 'APPOINTMENT_CREATED':
+        if (!this.data.appointments.find(a => a.id === msg.data.id)) {
+          this.data.appointments.push(msg.data);
+          this.saveData();
+          if (window.rerenderCurrentView) window.rerenderCurrentView();
+        }
+        break;
+      case 'APPOINTMENT_UPDATED':
+      case 'APPOINTMENT_RESCHEDULED':
+        const apptObj = msg.data.appointment || msg.data;
+        const aIdx = this.data.appointments.findIndex(a => a.id === apptObj.id);
+        if (aIdx >= 0) {
+          this.data.appointments[aIdx] = apptObj;
+          this.saveData();
+          if (window.rerenderCurrentView) window.rerenderCurrentView();
+        }
+        break;
+      case 'PATIENT_CREATED':
+        if (!this.data.patients.find(p => p.id === msg.data.id)) {
+          this.data.patients.unshift(msg.data);
+          this.saveData();
+          if (window.rerenderCurrentView) window.rerenderCurrentView();
+        }
+        break;
+      case 'INVENTORY_ADJUSTED':
+        const itemIdx = this.data.inventory.findIndex(i => i.id === msg.data.id);
+        if (itemIdx >= 0) {
+          this.data.inventory[itemIdx] = msg.data;
+          this.saveData();
+          if (window.rerenderCurrentView) window.rerenderCurrentView();
+        }
+        break;
+      case 'AI_CALL_RECOVERED':
+      case 'DEMO_RESET':
+        this.syncFullStateFromBackend();
+        break;
+    }
+  }
+
+  async apiCall(endpoint, method = 'POST', body = null) {
+    if (!this.isBackendOnline) return;
+    try {
+      await fetch(endpoint, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined
+      });
+    } catch (e) {
+      console.warn('[API] Background request failed:', e.message);
+    }
+  }
+
   // Current User / Auth
   setCurrentUser(userKey) {
     const user = this.data.users.find(u => u.roleKey === userKey) || this.data.users[0];
     this.data.currentUser = user;
     this.saveData();
+    this.apiCall('/api/users/switch', 'POST', { roleKey: userKey });
   }
 
   // Patients
@@ -797,6 +984,7 @@ class Store {
     };
     this.data.patients.unshift(newPatient);
     this.saveData();
+    this.apiCall('/api/patients', 'POST', newPatient);
     return newPatient;
   }
 
@@ -813,6 +1001,7 @@ class Store {
     };
     this.data.appointments.push(newAppt);
     this.saveData();
+    this.apiCall('/api/appointments', 'POST', newAppt);
     return newAppt;
   }
 
@@ -826,6 +1015,7 @@ class Store {
     const newPlan = { id: nextId, ...tp };
     this.data.treatmentPlans.unshift(newPlan);
     this.saveData();
+    this.apiCall('/api/treatment-plans', 'POST', newPlan);
     return newPlan;
   }
 
@@ -839,7 +1029,43 @@ class Store {
     const newInv = { id: nextId, ...invoice };
     this.data.invoices.unshift(newInv);
     this.saveData();
+    this.apiCall('/api/invoices', 'POST', newInv);
     return newInv;
+  }
+
+  payInvoice(invoiceId, paymentMethod = 'Credit Card', amount = null) {
+    const inv = this.data.invoices.find(i => i.id === invoiceId);
+    if (inv) {
+      inv.paymentStatus = 'Paid';
+      inv.paymentMethod = paymentMethod;
+      const payAmount = amount ? Number(amount) : inv.total;
+      inv.paidAmount = payAmount;
+
+      // Update patient outstanding balance
+      const pt = this.data.patients.find(p => p.id === inv.patientId);
+      if (pt) {
+        const currentBalNum = parseFloat(String(pt.balance).replace(/[^0-9.-]+/g, '')) || 0;
+        const newBal = Math.max(0, currentBalNum - payAmount);
+        pt.balance = `$${newBal.toFixed(2)}`;
+        this.apiCall(`/api/patients/${pt.id}`, 'PUT', pt);
+      }
+
+      this.addAuditLog("Invoice Payment Collected", `Recorded $${payAmount.toFixed(2)} payment for ${inv.id} via ${paymentMethod}`);
+      this.saveData();
+      this.apiCall(`/api/invoices/${invoiceId}/pay`, 'POST', { paymentMethod, amount: payAmount });
+    }
+    return inv;
+  }
+
+  updatePatientMedicalHistory(patientId, medicalHistory) {
+    const pt = this.data.patients.find(p => p.id === patientId);
+    if (pt) {
+      pt.medicalHistory = { ...(pt.medicalHistory || {}), ...medicalHistory };
+      this.saveData();
+      this.apiCall(`/api/patients/${patientId}`, 'PUT', pt);
+      this.addAuditLog("Medical History Updated", `Electronic health record updated for patient ${pt.name} (${pt.id})`);
+    }
+    return pt;
   }
 
   // AI Receptionist
@@ -942,6 +1168,7 @@ class Store {
     this.data.aiReceptionist.metrics.revenueSaved += estimatedValue;
 
     this.saveData();
+    this.apiCall('/api/ai/simulate-call', 'POST', bookingDetails);
 
     return { patient, appointment: newAppt, callLog: newCallLog };
   }
@@ -964,6 +1191,7 @@ class Store {
     if (notes !== undefined) chart.notes = notes;
     this.saveData();
     this.addAuditLog("Odontogram Updated", `Tooth #${toothNum} marked as ${status} for ${patientId}`);
+    this.apiCall(`/api/odontograms/${patientId}/tooth`, 'PATCH', { toothNumber: toothNum, status, notes });
     return chart;
   }
 
@@ -978,6 +1206,7 @@ class Store {
     this.data.prescriptions.unshift(newRx);
     this.saveData();
     this.addAuditLog("Prescription Issued", `${newRx.medication} prescribed to ${newRx.patientName}`);
+    this.apiCall('/api/prescriptions', 'POST', newRx);
     return newRx;
   }
 
@@ -1011,6 +1240,7 @@ class Store {
       item.status = item.quantity <= item.threshold ? "Low Stock Alert" : "In Stock";
       this.saveData();
       this.addAuditLog("Inventory Adjusted", `${item.name}: quantity adjusted by ${delta > 0 ? '+' + delta : delta} (${item.quantity} ${item.unit} remaining)`);
+      this.apiCall(`/api/inventory/${itemId}/adjust`, 'PATCH', { delta });
     }
     return item;
   }
@@ -1027,6 +1257,7 @@ class Store {
   saveSettings(newSettings) {
     this.data.settings = { ...this.data.settings, ...newSettings };
     this.saveData();
+    this.apiCall('/api/settings', 'PUT', this.data.settings);
     this.addAuditLog("Clinic Settings Saved", "Practice configuration and AI thresholds updated");
   }
 
@@ -1036,18 +1267,30 @@ class Store {
   }
 
   addAuditLog(action, details, user) {
-    const activeUser = user || this.data.currentUser;
+    let act = action;
+    let det = details;
+    let usr = user;
+    if (typeof action === 'object' && action !== null) {
+      act = action.action || 'System Event';
+      det = action.details || '';
+      usr = action.user ? { name: action.user, role: action.role || 'Staff' } : null;
+    }
+    const activeUser = usr || this.data.currentUser || { name: 'Dr. Alexander Vance', role: 'Practice Owner' };
     const newLog = {
       id: "aud-" + (900 + this.data.auditLog.length + 1),
-      user: activeUser.name,
-      role: activeUser.role,
-      action: action,
-      details: details,
+      user: typeof activeUser === 'string' ? activeUser : activeUser.name,
+      role: typeof activeUser === 'object' ? activeUser.role : 'Staff',
+      action: act,
+      details: det,
       timestamp: "Just now",
       ip: "192.168.1.104"
     };
     this.data.auditLog.unshift(newLog);
     this.saveData();
+    this.apiCall('/api/audit-logs', 'POST', newLog);
+    return newLog;
+  }
+
   // Phase 3: Scheduling Conflict & Double-Booking Logic
   checkSchedulingConflict(date, time, operatory, ignoreApptId = null) {
     const existing = this.data.appointments.find(a => {
@@ -1093,6 +1336,8 @@ class Store {
       `Beacon Peak Dental: Hi ${appt.patientName.split(' ')[0]}, your appointment has been updated to ${newTime} in ${newOperatory}. Reply C to confirm.`
     );
 
+    this.apiCall(`/api/appointments/${apptId}/reschedule`, 'POST', { newTime, newOperatory, newDentistName, isDoubleBooked });
+
     return appt;
   }
 
@@ -1137,6 +1382,7 @@ class Store {
     this.data.communications.unshift(comm);
     this.saveData();
     this.addAuditLog(`Outbound ${type} Dispatched`, `Sent to ${comm.patientName} (${comm.destination})`);
+    this.apiCall('/api/communications/send', 'POST', { patientId, type, message });
     return comm;
   }
 

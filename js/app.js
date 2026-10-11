@@ -76,6 +76,7 @@ export function navigateTo(route) {
 }
 
 window.navigateTo = navigateTo;
+window.rerenderCurrentView = renderCurrentRoute;
 
 function renderCurrentRoute() {
   const contentArea = document.getElementById('main-content-area');
@@ -306,6 +307,7 @@ window.openPatientDrawer = function(patientId) {
 
   drawerOverlay.classList.add('active');
 };
+window.openPatientProfile = window.openPatientDrawer;
 
 window.openInvoiceView = function(invoiceId) {
   const drawerOverlay = document.getElementById('app-drawer-overlay');
@@ -479,10 +481,11 @@ window.openAppointmentModal = function(aptId) {
 };
 
 // Global Book Appointment Modal
-window.openBookAppointmentModal = function(preselectedPatientId) {
+window.openBookAppointmentModal = function(preselectedPatientId, options = {}) {
   const store = window.appStore;
   const patients = store.getPatients();
   const dentists = store.data.dentists;
+  const { date = "2026-10-12", time = "10:00 AM", chair = null } = options;
 
   const modal = document.createElement('div');
   modal.className = 'modal-overlay active';
@@ -505,10 +508,10 @@ window.openBookAppointmentModal = function(preselectedPatientId) {
 
         <div class="form-row">
           <div class="form-group">
-            <label class="form-label">Dentist</label>
+            <label class="form-label">Dentist / Chair</label>
             <select class="form-select" id="book-dentist-select">
               ${dentists.map(d => `
-                <option value="${d.id}" data-chair="${d.chair}">${d.name} (${d.chair.split(' ')[0]} ${d.chair.split(' ')[1]})</option>
+                <option value="${d.id}" data-chair="${d.chair}" ${chair && d.chair.includes(chair.split(' ')[0]) ? 'selected' : ''}>${d.name} (${d.chair.split(' ')[0]} ${d.chair.split(' ')[1]})</option>
               `).join('')}
             </select>
           </div>
@@ -526,19 +529,14 @@ window.openBookAppointmentModal = function(preselectedPatientId) {
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">Date</label>
-            <input type="date" class="form-input" id="book-date" value="2026-10-12">
+            <input type="date" class="form-input" id="book-date" value="${date}">
           </div>
           <div class="form-group">
             <label class="form-label">Time Slot</label>
             <select class="form-select" id="book-time-select">
-              <option value="8:00 AM">8:00 AM</option>
-              <option value="9:00 AM">9:00 AM</option>
-              <option value="10:00 AM">10:00 AM</option>
-              <option value="11:30 AM">11:30 AM</option>
-              <option value="1:00 PM">1:00 PM</option>
-              <option value="2:00 PM">2:00 PM</option>
-              <option value="3:30 PM">3:30 PM</option>
-              <option value="4:00 PM">4:00 PM</option>
+              ${["8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "11:30 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "3:30 PM", "4:00 PM"].map(ts => `
+                <option value="${ts}" ${time === ts ? 'selected' : ''}>${ts}</option>
+              `).join('')}
             </select>
           </div>
         </div>

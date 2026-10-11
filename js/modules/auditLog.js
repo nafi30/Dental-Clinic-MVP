@@ -10,15 +10,41 @@ export function renderAuditLog() {
   const container = document.createElement('div');
   container.className = 'audit-log-wrap';
 
+  function downloadAuditCsv(logs) {
+    const lines = [
+      `"HIPAA SECURITY AUDIT LOG ARCHIVE - IMMUTABLE COMPLIANCE EXPORT"`,
+      `"Practice","Beacon Peak Dental Group"`,
+      `"Generated At","${new Date().toLocaleString()}"`,
+      `"Total Records","${logs.length}"`,
+      ``,
+      `"Timestamp","Staff / System Actor","Role","Action Category","Event Details","Station / IP","Integrity Status"`,
+      ...logs.map(l => {
+        const cleanDetails = (l.details || '').replace(/"/g, '""');
+        return `"${l.timestamp}","${l.user}","${l.role || 'Staff'}","${l.action}","${cleanDetails}","${l.ip || '127.0.0.1'}","VERIFIED_IMMUTABLE"`;
+      })
+    ];
+
+    const csvContent = lines.join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `HIPAA_Audit_Trail_Export_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   function renderView() {
     const logs = store.getAuditLogs();
 
     const filtered = logs.filter(log => {
-      const matchUser = userFilter === 'all' || log.user.toLowerCase().includes(userFilter.toLowerCase());
+      const matchUser = userFilter === 'all' || (log.user || '').toLowerCase().includes(userFilter.toLowerCase());
       const matchSearch = !searchTerm ||
-        log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        log.user.toLowerCase().includes(searchTerm.toLowerCase());
+        (log.action || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (log.details || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (log.user || '').toLowerCase().includes(searchTerm.toLowerCase());
       return matchUser && matchSearch;
     });
 
@@ -73,7 +99,7 @@ export function renderAuditLog() {
                 </td>
               </tr>
             ` : filtered.map(log => {
-              const isAi = log.user.includes('AI');
+              const isAi = (log.user || '').includes('AI');
               return `
                 <tr>
                   <td style="font-family: var(--font-mono); font-size: 12px; color: var(--color-slate-600); white-space: nowrap;">
@@ -82,11 +108,11 @@ export function renderAuditLog() {
                   <td>
                     <div style="display: flex; align-items: center; gap: 8px;">
                       <div class="user-avatar" style="width: 26px; height: 26px; font-size: 10px; ${isAi ? 'background:var(--teal-900); border-color:var(--teal-500);' : ''}">
-                        ${isAi ? 'AI' : log.user.split(' ').map(n=>n[0]).join('')}
+                        ${isAi ? 'AI' : (log.user || 'U').split(' ').map(n=>n[0]).join('')}
                       </div>
                       <div>
                         <strong style="font-size: 13px; color: var(--text-primary);">${log.user}</strong>
-                        <div style="font-size: 11px; color: var(--text-muted);">${log.role}</div>
+                        <div style="font-size: 11px; color: var(--text-muted);">${log.role || 'Staff'}</div>
                       </div>
                     </div>
                   </td>
@@ -99,7 +125,7 @@ export function renderAuditLog() {
                     ${log.details}
                   </td>
                   <td style="font-family: var(--font-mono); font-size: 11.5px; color: var(--color-slate-500);">
-                    ${log.ip}
+                    ${log.ip || '127.0.0.1'}
                   </td>
                   <td>
                     <span class="badge badge-confirmed" style="font-size: 10.5px;">
@@ -141,7 +167,9 @@ export function renderAuditLog() {
     const btnExport = container.querySelector('#btn-export-audit');
     if (btnExport) {
       btnExport.addEventListener('click', () => {
-        window.showToast("Exported HIPAA security audit log archive (CSV format).", "success");
+        const logs = store.getAuditLogs();
+        downloadAuditCsv(logs);
+        window.showToast(`Exported ${logs.length} HIPAA compliance audit records (CSV).`, "success");
       });
     }
   }

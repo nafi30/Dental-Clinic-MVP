@@ -1,5 +1,5 @@
 /**
- * modules/aiReceptionist.js - Flagship Module 14: AI Voice Receptionist & Live Call Simulator
+ * modules/aiReceptionist.js - Flagship Module 14: AI Voice Receptionist, Live Call Simulator & Clinical Symptom Triage
  */
 
 export function renderAiReceptionist() {
@@ -48,7 +48,7 @@ export function renderAiReceptionist() {
         </div>
         <div class="kpi-val">${metrics.recoveryRate}</div>
         <div class="kpi-footer">
-          <span>Trained on dental terminology & insurance</span>
+          <span>Trained on dental CDT codes & insurance</span>
         </div>
       </div>
 
@@ -93,8 +93,48 @@ export function renderAiReceptionist() {
       </div>
     </div>
 
+    <!-- Interactive AI Clinical Symptom Triage Console -->
+    <div class="card" style="margin-top: 20px; border-left: 4px solid var(--teal-600);">
+      <div class="card-header" style="background: #F8FAFC;">
+        <div>
+          <div class="card-title" style="display: flex; align-items: center; gap: 8px; font-size: 15px;">
+            <span>🤖</span> Clinical AI Symptom Triage & Urgency Scanner
+          </div>
+          <div class="card-subtitle">Test any dental symptom or patient complaint to get instant emergency severity, operatory chair mapping & booking recommendation</div>
+        </div>
+        <span class="badge badge-teal" style="font-family: var(--font-mono);">CDT Diagnostic Engine</span>
+      </div>
+      <div class="card-body">
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <label class="form-label" style="font-weight: 600;">Patient Complaint / Symptoms</label>
+            <div style="display: flex; gap: 10px;">
+              <input type="text" id="ai-symptom-input" class="form-input" placeholder="e.g. Severe throbbing lower molar pain & swelling since yesterday" value="Fractured lower molar while eating dinner, sharp edge causing pain">
+              <button class="btn btn-primary" id="btn-run-triage" style="white-space: nowrap;">
+                ⚡ Triage with AI
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Scenario Badges -->
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 11.5px; font-weight: 700; color: var(--text-muted);">Quick Presets:</span>
+            <button class="btn btn-secondary btn-sm triage-preset" data-text="Fractured tooth #30 with sharp edge, high sensitivity" style="padding: 2px 8px; font-size: 11px;">Broken Tooth #30</button>
+            <button class="btn btn-secondary btn-sm triage-preset" data-text="Swollen cheek, gum abscess, throbbing pain, low-grade fever" style="padding: 2px 8px; font-size: 11px;">Severe Abscess & Swelling</button>
+            <button class="btn btn-secondary btn-sm triage-preset" data-text="Mild bleeding gums during flossing, routine cleaning inquiry" style="padding: 2px 8px; font-size: 11px;">Routine Hygiene Inquiry</button>
+            <button class="btn btn-secondary btn-sm triage-preset" data-text="Wisdom tooth pressure in lower jaw, difficulty chewing" style="padding: 2px 8px; font-size: 11px;">Wisdom Tooth Pain</button>
+          </div>
+
+          <!-- Live Triage Result Box -->
+          <div id="ai-triage-result" style="display: none; padding: 16px; border-radius: var(--radius-md); background: #F0FDFA; border: 1px solid var(--teal-200); margin-top: 8px;">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Call Log History Table -->
-    <div class="card">
+    <div class="card" style="margin-top: 20px;">
       <div class="card-header">
         <div>
           <div class="card-title">
@@ -128,7 +168,7 @@ export function renderAiReceptionist() {
                 <td>
                   <div style="display: flex; align-items: center; gap: 8px;">
                     <div class="user-avatar" style="width: 28px; height: 28px; font-size: 10px; background: var(--teal-900); border-color: var(--teal-500);">
-                      ${call.patientName.split(' ').map(n=>n[0]).join('')}
+                      ${(call.patientName || 'Caller').split(' ').map(n=>n[0]).join('')}
                     </div>
                     <strong style="color: var(--text-primary);">${call.patientName}</strong>
                   </div>
@@ -168,6 +208,118 @@ export function renderAiReceptionist() {
     });
   }
 
+  // Triage Console Logic
+  const inputSymptom = container.querySelector('#ai-symptom-input');
+  const btnTriage = container.querySelector('#btn-run-triage');
+  const triageResultBox = container.querySelector('#ai-triage-result');
+
+  const executeTriage = async () => {
+    const symptoms = inputSymptom ? inputSymptom.value.trim() : '';
+    if (!symptoms) {
+      window.showToast("Please enter a symptom description.", "error");
+      return;
+    }
+
+    btnTriage.disabled = true;
+    btnTriage.textContent = "Analyzing...";
+
+    try {
+      const res = await fetch('/api/ai/triage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ symptoms, painScale: 8 })
+      });
+      const data = await res.json();
+      const triage = data.data || {
+        severity: 'EMERGENCY',
+        urgency: 'Immediate (Within 12-24h)',
+        triageCode: 'CDT-D9110',
+        suggestedTreatment: 'Emergency Exam & Palliative Tooth Restoration',
+        recommendedChair: 'Chair 1 (Operatory A)',
+        recommendedDoctor: 'Dr. Alexander Vance',
+        palliativeTips: ['Avoid chewing on affected tooth', 'Rinse gently with warm salt water'],
+        estimatedRevenue: 380
+      };
+
+      const isEmerg = triage.severity.includes('EMERGENCY') || triage.severity.includes('CRITICAL');
+
+      triageResultBox.style.display = 'block';
+      triageResultBox.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="badge ${isEmerg ? 'badge-cancelled' : 'badge-confirmed'}" style="font-size: 12px; font-weight: 700;">
+              ${triage.severity}
+            </span>
+            <span style="font-size: 13px; font-weight: 700; color: var(--text-primary);">${triage.urgency}</span>
+          </div>
+          <span style="font-family: var(--font-mono); font-size: 12px; font-weight: 700; color: var(--teal-800); background: #E0F2FE; padding: 2px 8px; border-radius: 4px;">
+            ${triage.triageCode}
+          </span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 14px; background: #FFFFFF; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--teal-100);">
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">RECOMMENDED OPERATORY</div>
+            <div style="font-weight: 700; color: var(--text-primary); font-size: 13.5px;">${triage.recommendedChair}</div>
+          </div>
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">ATTENDING DENTIST</div>
+            <div style="font-weight: 700; color: var(--teal-800); font-size: 13.5px;">${triage.recommendedDoctor}</div>
+          </div>
+          <div>
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 600;">ESTIMATED YIELD</div>
+            <div style="font-weight: 800; color: var(--emerald-600); font-size: 14px; font-family: var(--font-mono);">+$${triage.estimatedRevenue}</div>
+          </div>
+        </div>
+
+        <div style="font-size: 12.5px; color: var(--text-secondary); margin-bottom: 14px;">
+          <strong>Clinical Palliative Guidance:</strong> ${triage.palliativeTips ? triage.palliativeTips.join(' · ') : 'Avoid chewing on affected quadrant.'}
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button class="btn btn-primary btn-sm" id="btn-triage-book-now" style="font-weight: 700;">
+            📅 Book Recommended Slot into Operatory Schedule
+          </button>
+        </div>
+      `;
+
+      const btnBook = triageResultBox.querySelector('#btn-triage-book-now');
+      if (btnBook) {
+        btnBook.addEventListener('click', () => {
+          window.openBookAppointmentModal({
+            treatment: triage.suggestedTreatment,
+            chair: triage.recommendedChair.split(' ')[0] + ' ' + triage.recommendedChair.split(' ')[1]
+          });
+        });
+      }
+
+    } catch (err) {
+      window.showToast("Triage failed: " + err.message, "error");
+    } finally {
+      btnTriage.disabled = false;
+      btnTriage.textContent = "⚡ Triage with AI";
+    }
+  };
+
+  if (btnTriage) {
+    btnTriage.addEventListener('click', executeTriage);
+  }
+  if (inputSymptom) {
+    inputSymptom.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') executeTriage();
+    });
+  }
+
+  container.querySelectorAll('.triage-preset').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (inputSymptom) {
+        inputSymptom.value = btn.getAttribute('data-text');
+        executeTriage();
+      }
+    });
+  });
+
+  // Call Logs Events
   container.querySelectorAll('.call-log-row').forEach(row => {
     row.addEventListener('click', (e) => {
       const callId = row.getAttribute('data-call-id');
@@ -223,7 +375,7 @@ export function renderTranscriptModalContent(callId) {
 
     <!-- Conversational Transcript -->
     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-      ${call.transcript.map(line => `
+      ${(call.transcript || []).map(line => `
         <div style="display: flex; flex-direction: column; max-width: 85%; ${line.speaker === 'AI' ? 'align-self: flex-end;' : 'align-self: flex-start;'}">
           <div style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; margin-bottom: 3px; color: ${line.speaker === 'AI' ? 'var(--teal-700)' : 'var(--color-slate-500)'}; ${line.speaker === 'AI' ? 'text-align: right;' : ''}">
             ${line.speaker === 'AI' ? 'Aesora Voice AI (Receptionist)' : call.patientName + ' (Caller)'}

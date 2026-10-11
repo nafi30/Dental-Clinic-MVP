@@ -1,5 +1,5 @@
 /**
- * modules/inventory.js - Clinic Consumables & Inventory with Low Stock Alerts
+ * modules/inventory.js - Clinic Consumables & Inventory with Low Stock Alerts & Real Modal Creation
  */
 
 export function renderInventory() {
@@ -19,6 +19,10 @@ export function renderInventory() {
 
     const totalSKUs = inventory.length;
     const totalLowStock = lowStockItems.length;
+    const totalValuation = inventory.reduce((sum, item) => sum + (item.quantity * (item.costPerUnit || 0)), 0);
+
+    // Dynamic distinct vendor count
+    const vendors = new Set(inventory.map(i => i.supplier).filter(Boolean));
 
     container.innerHTML = `
       <!-- Top Metrics -->
@@ -52,8 +56,8 @@ export function renderInventory() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </div>
           </div>
-          <div class="kpi-val">$8,420</div>
-          <div class="kpi-footer">Estimated on-hand clinical asset value</div>
+          <div class="kpi-val" style="color: var(--teal-800);">$${Math.round(totalValuation).toLocaleString()}</div>
+          <div class="kpi-footer">Live on-hand clinical asset value</div>
         </div>
 
         <div class="kpi-card">
@@ -63,8 +67,8 @@ export function renderInventory() {
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
             </div>
           </div>
-          <div class="kpi-val">3 Vendors</div>
-          <div class="kpi-footer">Henry Schein, Patterson, Benco</div>
+          <div class="kpi-val">${vendors.size} Vendors</div>
+          <div class="kpi-footer">${Array.from(vendors).slice(0, 3).join(', ')}</div>
         </div>
       </div>
 
@@ -98,7 +102,8 @@ export function renderInventory() {
         </div>
 
         <button class="btn btn-primary" id="btn-add-inventory-item">
-          + Add Stock Item
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Stock Item
         </button>
       </div>
 
@@ -113,6 +118,7 @@ export function renderInventory() {
               <th>Reorder Threshold</th>
               <th>Unit / Packaging</th>
               <th>Supplier</th>
+              <th>Unit Cost</th>
               <th>Status</th>
               <th style="text-align: right;">Adjust Stock</th>
             </tr>
@@ -135,15 +141,17 @@ export function renderInventory() {
                 </td>
                 <td style="font-size: 12px; color: var(--text-muted);">${item.unit}</td>
                 <td style="font-size: 12.5px; font-weight: 500;">${item.supplier}</td>
+                <td style="font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--teal-800);">$${(item.costPerUnit || 0).toFixed(2)}</td>
                 <td>
                   <span class="badge badge-${item.status.includes('Alert') ? 'alert' : 'confirmed'}">
                     ${item.status}
                   </span>
                 </td>
                 <td style="text-align: right;">
-                  <div class="stock-stepper">
-                    <button class="btn-stepper btn-sub" data-item-id="${item.id}" title="Deduct stock">-</button>
-                    <button class="btn-stepper btn-add" data-item-id="${item.id}" title="Add stock">+</button>
+                  <div class="stepper-wrap" style="justify-content: flex-end;">
+                    <button class="btn btn-secondary btn-sm btn-sub" data-item-id="${item.id}" title="Reduce stock count" style="width: 28px; height: 28px; padding: 0;">-</button>
+                    <span style="font-family: var(--font-mono); font-weight: 700; min-width: 28px; text-align: center;">${item.quantity}</span>
+                    <button class="btn btn-secondary btn-sm btn-add" data-item-id="${item.id}" title="Add stock count" style="width: 28px; height: 28px; padding: 0;">+</button>
                   </div>
                 </td>
               </tr>
@@ -199,26 +207,125 @@ export function renderInventory() {
     const btnAddItem = container.querySelector('#btn-add-inventory-item');
     if (btnAddItem) {
       btnAddItem.addEventListener('click', () => {
-        const name = prompt("Enter Name of New Clinical Supply Item:", "Prophy Paste Mint Medium");
-        if (name) {
-          const newItem = {
-            id: "inv-item-" + (store.data.inventory.length + 1),
-            name: name,
-            category: "Prophylaxis",
-            quantity: 10,
-            threshold: 3,
-            unit: "Boxes (200 cups/box)",
-            supplier: "Henry Schein",
-            costPerUnit: 28.00,
-            status: "In Stock"
-          };
-          store.data.inventory.push(newItem);
-          store.saveData();
-          window.showToast(`Added ${name} to clinical inventory.`, "success");
-          renderView();
-        }
+        openAddInventoryModal();
       });
     }
+  }
+
+  function openAddInventoryModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay active';
+
+    modal.innerHTML = `
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title">Add New Clinical Supply Item</h3>
+          <button class="modal-close-btn" id="btn-close-inv-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Supply Item Name</label>
+            <input type="text" class="form-input" id="new-inv-name" placeholder="e.g. Prophy Paste Mint Coarse (200/box)" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select class="form-select" id="new-inv-category">
+                <option value="Restorative">Restorative</option>
+                <option value="Anesthetics">Anesthetics</option>
+                <option value="Infection Control">Infection Control</option>
+                <option value="Endodontics">Endodontics</option>
+                <option value="Disposables">Disposables</option>
+                <option value="Sterilization">Sterilization</option>
+                <option value="Prophylaxis">Prophylaxis</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Supplier / Vendor</label>
+              <select class="form-select" id="new-inv-supplier">
+                <option value="Henry Schein">Henry Schein</option>
+                <option value="Patterson Dental">Patterson Dental</option>
+                <option value="Benco Dental">Benco Dental</option>
+                <option value="Darby Dental">Darby Dental</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Initial Quantity</label>
+              <input type="number" class="form-input" id="new-inv-qty" value="10" min="0" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reorder Alert Threshold</label>
+              <input type="number" class="form-input" id="new-inv-threshold" value="3" min="1" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Unit / Packaging</label>
+              <input type="text" class="form-input" id="new-inv-unit" placeholder="e.g. Boxes, Bottles, Packs" value="Boxes">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cost Per Unit ($)</label>
+              <input type="number" class="form-input" id="new-inv-cost" value="45.00" step="0.50">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary btn-sm" id="btn-cancel-inv-modal">Cancel</button>
+          <button class="btn btn-primary btn-sm" id="btn-submit-inv-modal">Save To Inventory</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const close = () => {
+      modal.classList.remove('active');
+      setTimeout(() => modal.remove(), 200);
+    };
+
+    modal.querySelector('#btn-close-inv-modal').addEventListener('click', close);
+    modal.querySelector('#btn-cancel-inv-modal').addEventListener('click', close);
+
+    modal.querySelector('#btn-submit-inv-modal').addEventListener('click', () => {
+      const name = modal.querySelector('#new-inv-name').value.trim();
+      if (!name) {
+        alert('Please enter an item name.');
+        return;
+      }
+
+      const category = modal.querySelector('#new-inv-category').value;
+      const supplier = modal.querySelector('#new-inv-supplier').value;
+      const quantity = parseInt(modal.querySelector('#new-inv-qty').value) || 0;
+      const threshold = parseInt(modal.querySelector('#new-inv-threshold').value) || 3;
+      const unit = modal.querySelector('#new-inv-unit').value || 'Units';
+      const costPerUnit = parseFloat(modal.querySelector('#new-inv-cost').value) || 0;
+
+      const newItem = {
+        id: "inv-item-" + (store.data.inventory.length + 1),
+        name,
+        category,
+        quantity,
+        threshold,
+        unit,
+        supplier,
+        costPerUnit,
+        status: quantity <= threshold ? "Low Stock Alert" : "In Stock"
+      };
+
+      store.data.inventory.push(newItem);
+      store.saveData();
+      store.apiCall('/api/inventory', 'POST', newItem);
+      store.addAuditLog("Inventory Item Added", `Added new SKU: ${name} (${quantity} ${unit})`);
+
+      window.showToast(`✓ Added ${name} to clinical inventory.`, "success");
+      close();
+      renderView();
+    });
   }
 
   renderView();

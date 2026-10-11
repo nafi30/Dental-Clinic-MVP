@@ -35,33 +35,33 @@ export function renderSettings() {
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Clinic Commercial Name</label>
-              <input type="text" class="form-input" id="setting-name" value="${settings.clinicName}">
+              <input type="text" class="form-input" id="setting-name" value="${settings.clinicName || ''}">
             </div>
             <div class="form-group">
               <label class="form-label">Main Reception Phone</label>
-              <input type="text" class="form-input" id="setting-phone" value="${settings.phone}">
+              <input type="text" class="form-input" id="setting-phone" value="${settings.phone || ''}">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Physical Address</label>
-              <input type="text" class="form-input" id="setting-address" value="${settings.address}">
+              <input type="text" class="form-input" id="setting-address" value="${settings.address || ''}">
             </div>
             <div class="form-group">
               <label class="form-label">Operating Schedule</label>
-              <input type="text" class="form-input" id="setting-hours" value="${settings.operatingHours}">
+              <input type="text" class="form-input" id="setting-hours" value="${settings.operatingHours || ''}">
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Federal Tax ID (EIN)</label>
-              <input type="text" class="form-input" value="${settings.taxId}">
+              <input type="text" class="form-input" id="setting-taxid" value="${settings.taxId || ''}">
             </div>
             <div class="form-group">
               <label class="form-label">National Provider Identifier (NPI)</label>
-              <input type="text" class="form-input" value="${settings.npi}">
+              <input type="text" class="form-input" id="setting-npi" value="${settings.npi || ''}">
             </div>
           </div>
         </div>
@@ -86,7 +86,7 @@ export function renderSettings() {
               </tr>
             </thead>
             <tbody>
-              ${settings.operatories.map(op => `
+              ${(settings.operatories || []).map(op => `
                 <tr>
                   <td><strong style="color: var(--text-primary);">${op.name}</strong></td>
                   <td style="font-weight: 600; color: var(--teal-800);">${op.primaryDoctor}</td>
@@ -149,21 +149,21 @@ export function renderSettings() {
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Call Answering Latency</label>
-              <input type="text" class="form-input" value="${settings.aiReceptionistConfig.answerDelay}" readonly>
+              <input type="text" class="form-input" id="setting-ai-delay" value="${(settings.aiReceptionistConfig && settings.aiReceptionistConfig.answerDelay) || '2 rings (< 1.2s)'}">
             </div>
             <div class="form-group">
               <label class="form-label">Voice Persona & Demeanor</label>
-              <input type="text" class="form-input" value="${settings.aiReceptionistConfig.voiceTone}">
+              <input type="text" class="form-input" id="setting-ai-tone" value="${(settings.aiReceptionistConfig && settings.aiReceptionistConfig.voiceTone) || 'Empathetic, Clinical, Conversational'}">
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Triage & Priority Detection</label>
-              <input type="text" class="form-input" value="${settings.aiReceptionistConfig.triageMode}">
+              <input type="text" class="form-input" id="setting-ai-triage" value="${(settings.aiReceptionistConfig && settings.aiReceptionistConfig.triageMode) || 'Real-time Emergency CDT-Code Mapping'}">
             </div>
             <div class="form-group">
               <label class="form-label">Escalation Mobile Number</label>
-              <input type="text" class="form-input" value="${settings.aiReceptionistConfig.emergencyEscalationPhone}">
+              <input type="text" class="form-input" id="setting-ai-escalation" value="${(settings.aiReceptionistConfig && settings.aiReceptionistConfig.emergencyEscalationPhone) || '+1 (512) 555-0199'}">
             </div>
           </div>
         </div>
@@ -184,12 +184,26 @@ export function renderSettings() {
       const phone = container.querySelector('#setting-phone').value;
       const address = container.querySelector('#setting-address').value;
       const hours = container.querySelector('#setting-hours').value;
+      const taxId = container.querySelector('#setting-taxid').value;
+      const npi = container.querySelector('#setting-npi').value;
+      const delay = container.querySelector('#setting-ai-delay').value;
+      const tone = container.querySelector('#setting-ai-tone').value;
+      const triage = container.querySelector('#setting-ai-triage').value;
+      const escalation = container.querySelector('#setting-ai-escalation').value;
 
       store.saveSettings({
         clinicName: name,
         phone: phone,
         address: address,
-        operatingHours: hours
+        operatingHours: hours,
+        taxId: taxId,
+        npi: npi,
+        aiReceptionistConfig: {
+          answerDelay: delay,
+          voiceTone: tone,
+          triageMode: triage,
+          emergencyEscalationPhone: escalation
+        }
       });
 
       window.showToast("Clinic settings and AI parameters saved successfully.", "success");

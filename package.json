@@ -1,0 +1,29 @@
+{
+  "name": "beacon-peak-dental-os",
+  "version": "1.0.0",
+  "description": "Multi-Provider Dental Practice Operating System & AI Voice Receptionist MVP Backend & Frontend",
+  "main": "server/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node --watch server/server.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "dental",
+    "clinic-management",
+    "ai-receptionist",
+    "electronic-dental-records",
+    "express",
+    "sqlite"
+  ],
+  "author": "Beacon Peak Dental Group",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "multer": "^1.4.5-lts.1",
+    "ws": "^8.18.0"
+  }
+}

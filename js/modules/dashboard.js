@@ -11,7 +11,13 @@ export function renderDashboard() {
   const callLogs = store.getCallLogs();
 
   // Metrics calculation
-  const todayAppts = appointments.filter(a => a.date === '2026-10-12' || a.date === 'Today');
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayAppts = appointments.filter(a =>
+    a.date === todayStr ||
+    a.date === '2026-10-12' ||
+    a.date === '2026-10-13' ||
+    a.date === 'Today'
+  );
   const pendingInvoices = invoices.filter(inv => inv.paymentStatus !== 'Paid');
   const pendingAmount = pendingInvoices.reduce((sum, inv) => sum + (inv.total - (inv.paidAmount || 0)), 0);
 

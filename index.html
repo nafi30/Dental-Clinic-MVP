@@ -144,6 +144,12 @@
         </div>
 
         <div class="topbar-actions">
+          <!-- Backend Connection Status Pill -->
+          <div class="backend-status-pill" id="backend-status-badge" title="Live SQLite Backend & WebSocket Status" style="display: inline-flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 9999px; background: rgba(13, 148, 136, 0.08); color: var(--teal-600); border: 1px solid rgba(13, 148, 136, 0.2); transition: all 0.2s;">
+            <span class="status-dot" id="backend-status-dot" style="width: 7px; height: 7px; border-radius: 50%; background: #F59E0B; display: inline-block;"></span>
+            <span id="backend-status-text">Backend: Connecting...</span>
+          </div>
+
           <button class="btn btn-reset-demo" id="btn-reset-demo-data" title="Revert all sample data back to clean state before demo calls">
             ↺ Reset Demo
           </button>

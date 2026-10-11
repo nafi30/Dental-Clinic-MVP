@@ -20,7 +20,7 @@ export function renderPatientProfileDrawer(patientId) {
     <!-- Top Patient Banner -->
     <div class="profile-header-card">
       <div class="profile-big-avatar">
-        ${patient.name.split(' ').map(n=>n[0]).join('')}
+        ${(patient.name || 'P').split(' ').map(n=>n[0]).join('')}
       </div>
       <div style="flex: 1;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -65,6 +65,12 @@ export function renderPatientProfileDrawer(patientId) {
 
     <!-- Tab 1: Medical & Dental History -->
     <div id="tab-content-medical" class="tab-pane active">
+      <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+        <button class="btn btn-secondary btn-sm" id="btn-profile-edit-history" style="padding: 5px 12px; font-size: 12px;">
+          ✏️ Edit Clinical History & Allergies
+        </button>
+      </div>
+
       <div class="card" style="margin-bottom: 16px;">
         <div class="card-header">
           <span class="card-title">
@@ -103,7 +109,7 @@ export function renderPatientProfileDrawer(patientId) {
         <div class="card-header">
           <span class="card-title">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-            Dental Procedure History
+            Dental Procedure History & Clinical Notes
           </span>
         </div>
         <div class="card-body">
@@ -245,6 +251,14 @@ export function renderPatientProfileDrawer(patientId) {
     });
   });
 
+  // Edit Medical History Modal
+  const btnEditMed = drawerContent.querySelector('#btn-profile-edit-history');
+  if (btnEditMed) {
+    btnEditMed.addEventListener('click', () => {
+      openEditMedicalModal(patient);
+    });
+  }
+
   // Action buttons
   const btnAppt = drawerContent.querySelector('#btn-profile-book-appt');
   if (btnAppt) {
@@ -278,4 +292,98 @@ export function renderPatientProfileDrawer(patientId) {
   }
 
   return drawerContent;
+}
+
+function openEditMedicalModal(patient) {
+  const store = window.appStore;
+  const med = patient.medicalHistory || {};
+
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay active';
+  modal.innerHTML = `
+    <div class="modal-dialog" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Electronic Medical History: ${patient.name}</h3>
+        <button class="modal-close-btn" id="btn-close-edit-med">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Systemic Conditions (comma-separated)</label>
+          <input type="text" class="form-input" id="edit-med-conditions" value="${(med.conditions || []).join(', ')}" placeholder="e.g. Hypertension, Type 2 Diabetes, Asthma">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Known Allergies (Drug & Dental Material)</label>
+          <input type="text" class="form-input" id="edit-med-allergies" value="${(med.allergies || []).join(', ')}" placeholder="e.g. Penicillin, Latex or NKDA">
+          <span style="font-size: 11px; color: var(--crimson-700);">Allergies other than NKDA trigger clinical banner alerts.</span>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Dental Procedure History & Clinical Chart Notes</label>
+          <textarea class="form-input" id="edit-med-dental" rows="3">${med.dentalHistory || ''}</textarea>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Lifestyle / Risk Habits (comma-separated)</label>
+          <input type="text" class="form-input" id="edit-med-habits" value="${(med.habits || []).join(', ')}" placeholder="e.g. Non-smoker, Bruxism">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Emergency Contact Info</label>
+          <input type="text" class="form-input" id="edit-med-contact" value="${patient.emergencyContact || ''}">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-edit-med">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-edit-med">✓ Save Medical Record</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const close = () => {
+    modal.classList.remove('active');
+    setTimeout(() => modal.remove(), 200);
+  };
+
+  modal.querySelector('#btn-close-edit-med').addEventListener('click', close);
+  modal.querySelector('#btn-cancel-edit-med').addEventListener('click', close);
+
+  modal.querySelector('#btn-save-edit-med').addEventListener('click', () => {
+    const conditions = modal.querySelector('#edit-med-conditions').value
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const allergies = modal.querySelector('#edit-med-allergies').value
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const habits = modal.querySelector('#edit-med-habits').value
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const dentalHistory = modal.querySelector('#edit-med-dental').value.trim();
+    const emergencyContact = modal.querySelector('#edit-med-contact').value.trim();
+
+    patient.emergencyContact = emergencyContact;
+
+    store.updatePatientMedicalHistory(patient.id, {
+      conditions: conditions.length > 0 ? conditions : ['None reported'],
+      allergies: allergies.length > 0 ? allergies : ['NKDA'],
+      habits: habits.length > 0 ? habits : ['None'],
+      dentalHistory
+    });
+
+    close();
+    window.showToast(`Updated medical history for ${patient.name}!`, "success");
+
+    // Refresh drawer
+    setTimeout(() => {
+      window.openPatientProfile(patient.id);
+    }, 150);
+  });
 }
