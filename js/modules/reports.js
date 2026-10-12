@@ -100,8 +100,8 @@ export function renderReports() {
       <!-- Top Filter & Action Bar -->
       <div class="patients-toolbar">
         <div>
-          <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Practice Analytics & Executive Reporting</h3>
-          <p style="font-size: 12.5px; color: var(--text-muted);">Real-time financial yield, dentist operatory productivity & patient retention metrics (${data.periodLabel})</p>
+          <h2 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Practice Analytics & Executive Reporting</h2>
+          <p style="font-size: 13px; color: var(--text-secondary); max-width: 52ch; line-height: 1.5;">Real-time financial yield, dentist operatory productivity & patient retention metrics (${data.periodLabel})</p>
         </div>
 
         <div style="display: flex; gap: 10px;">
@@ -184,13 +184,13 @@ export function renderReports() {
                     <span style="font-family: var(--font-mono); color: var(--teal-800);">${pct}</span>
                   </div>
                   <div style="width: 100%; height: 10px; background: var(--color-slate-100); border-radius: 6px; overflow: hidden;">
-                    <div style="width: ${pct}; height: 100%; background: linear-gradient(90deg, var(--teal-600), var(--teal-700)); border-radius: 6px;"></div>
+                    <div style="width: ${pct}; height: 100%; background: #0F766E; border-radius: 6px;"></div>
                   </div>
                 </div>
               `).join('')}
             </div>
 
-            <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted);">
+            <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; font-size: 12.5px; color: var(--text-secondary);">
               <div>Cancellation Rate: <strong style="color: var(--text-primary);">${data.cancellationRate}</strong></div>
               <div>No-Show Rate: <strong style="color: var(--text-primary);">${data.noShowRate}</strong></div>
               <div>Industry Benchmark: <strong>8.5%</strong></div>

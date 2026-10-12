@@ -303,7 +303,7 @@ function openEditMedicalModal(patient) {
   modal.innerHTML = `
     <div class="modal-dialog" style="max-width: 540px;">
       <div class="modal-header">
-        <h3 class="modal-title">Edit Electronic Medical History: ${patient.name}</h3>
+        <h2 class="modal-title" style="font-size: 16px;">Edit Electronic Medical History: ${patient.name}</h2>
         <button class="modal-close-btn" id="btn-close-edit-med">✕</button>
       </div>
       <div class="modal-body">

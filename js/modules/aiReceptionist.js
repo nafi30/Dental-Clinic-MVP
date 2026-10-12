@@ -67,12 +67,12 @@ export function renderAiReceptionist() {
     </div>
 
     <!-- Centerpiece Hero Call Launcher -->
-    <div class="card call-sim-card" style="background: linear-gradient(135deg, #0B1422 0%, #132438 100%);">
+    <div class="card call-sim-card" style="background: #0F172A; border: 1px solid #1E293B;">
       <div style="padding: 28px 32px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
         <div style="max-width: 600px;">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
             <span class="ai-pulse-dot" style="margin-left: 0;"></span>
-            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--teal-300);">
+            <span style="font-size: 12.5px; font-weight: 600; color: #94A3B8;">
               Interactive Live Demo Engine
             </span>
           </div>
@@ -94,7 +94,7 @@ export function renderAiReceptionist() {
     </div>
 
     <!-- Interactive AI Clinical Symptom Triage Console -->
-    <div class="card" style="margin-top: 20px; border-left: 4px solid var(--teal-600);">
+    <div class="card" style="margin-top: 20px; border: 1px solid var(--border-subtle);">
       <div class="card-header" style="background: #F8FAFC;">
         <div>
           <div class="card-title" style="display: flex; align-items: center; gap: 8px; font-size: 15px;">

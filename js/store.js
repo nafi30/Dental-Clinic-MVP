@@ -809,14 +809,16 @@ class Store {
     if (!badge || !dot || !label) return;
 
     if (isOnline) {
-      dot.style.background = '#10B981';
-      badge.style.borderColor = 'rgba(16, 185, 129, 0.3)';
-      badge.style.color = '#0D9488';
+      dot.style.background = '#16A34A';
+      badge.style.borderColor = '#BBF7D0';
+      badge.style.background = '#F0FDF4';
+      badge.style.color = '#166534';
       label.textContent = text || 'Backend: Online (SQLite)';
     } else {
       dot.style.background = '#94A3B8';
-      badge.style.borderColor = 'rgba(148, 163, 184, 0.3)';
-      badge.style.color = '#64748B';
+      badge.style.borderColor = '#E2E8F0';
+      badge.style.background = '#F8FAFC';
+      badge.style.color = '#334155';
       label.textContent = text || 'Local Demo Mode';
     }
   }

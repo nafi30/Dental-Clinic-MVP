@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupUserSwitcher();
   setupDemoReset();
   setupMobileMenu();
+  setupSidebarToggle();
   renderCurrentRoute();
 
   // Subscribe to store updates to keep counters fresh
@@ -208,7 +209,7 @@ function openUserSwitcherModal() {
   modal.innerHTML = `
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3 class="modal-title">Switch Demo Persona / Role</h3>
+        <h2 class="modal-title" style="font-size: 16px;">Switch Demo Persona / Role</h2>
         <button class="modal-close-btn" id="modal-close">✕</button>
       </div>
       <div class="modal-body">
@@ -292,6 +293,67 @@ function setupMobileMenu() {
   }
 }
 
+// Desktop & Fixed Sidebar Minimize / Maximize Orchestrator
+function setupSidebarToggle() {
+  const appContainer = document.getElementById('app');
+  const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+  const btnTopbarToggle = document.getElementById('btn-topbar-sidebar-toggle');
+
+  if (!appContainer) return;
+
+  // Restore saved collapse preference
+  const isCollapsed = localStorage.getItem('bp_sidebar_collapsed') === 'true';
+  if (isCollapsed) {
+    appContainer.classList.add('sidebar-collapsed');
+    updateToggleButtons(true);
+  }
+
+  function toggleSidebar(forcedState = null) {
+    const shouldCollapse = forcedState !== null ? forcedState : !appContainer.classList.contains('sidebar-collapsed');
+    if (shouldCollapse) {
+      appContainer.classList.add('sidebar-collapsed');
+      localStorage.setItem('bp_sidebar_collapsed', 'true');
+    } else {
+      appContainer.classList.remove('sidebar-collapsed');
+      localStorage.setItem('bp_sidebar_collapsed', 'false');
+    }
+    updateToggleButtons(shouldCollapse);
+  }
+
+  function updateToggleButtons(collapsed) {
+    if (btnToggleSidebar) {
+      btnToggleSidebar.title = collapsed ? "Maximize sidebar (Ctrl+B)" : "Minimize sidebar (Ctrl+B)";
+    }
+    if (btnTopbarToggle) {
+      btnTopbarToggle.title = collapsed ? "Expand sidebar (Ctrl+B)" : "Minimize sidebar (Ctrl+B)";
+    }
+  }
+
+  if (btnToggleSidebar) {
+    btnToggleSidebar.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleSidebar();
+    });
+  }
+
+  if (btnTopbarToggle) {
+    btnTopbarToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleSidebar();
+    });
+  }
+
+  // Keyboard shortcut Ctrl+B or Cmd+B to toggle
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
+  window.toggleSidebar = toggleSidebar;
+}
+
 // Global Drawer Manager
 window.openPatientDrawer = function(patientId) {
   const drawerOverlay = document.getElementById('app-drawer-overlay');
@@ -354,7 +416,7 @@ window.openTranscriptModal = function(callId) {
   modal.innerHTML = `
     <div class="modal-dialog modal-lg">
       <div class="modal-header">
-        <h3 class="modal-title">AI Receptionist Call Audio & Transcript</h3>
+        <h2 class="modal-title" style="font-size: 16px;">AI Receptionist Call Audio & Transcript</h2>
         <button class="modal-close-btn" id="btn-close-transcript">✕</button>
       </div>
       <div class="modal-body" id="transcript-body"></div>
@@ -391,13 +453,13 @@ window.openAppointmentModal = function(aptId) {
   modal.innerHTML = `
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3 class="modal-title">Appointment Details</h3>
+        <h2 class="modal-title" style="font-size: 16px;">Appointment Details</h2>
         <button class="modal-close-btn" id="btn-close-apt">✕</button>
       </div>
       <div class="modal-body">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
           <div>
-            <h4 style="font-size: 17px; font-weight: 800; color: var(--text-primary);">${apt.patientName}</h4>
+            <h3 style="font-size: 17px; font-weight: 800; color: var(--text-primary);">${apt.patientName}</h3>
             <div style="font-size: 12.5px; color: var(--text-muted);">${apt.treatment}</div>
           </div>
           <span class="badge badge-${apt.status.toLowerCase().replace(' ', '-')}">${apt.status}</span>
@@ -493,7 +555,7 @@ window.openBookAppointmentModal = function(preselectedPatientId, options = {}) {
   modal.innerHTML = `
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3 class="modal-title">Schedule New Appointment</h3>
+        <h2 class="modal-title" style="font-size: 16px;">Schedule New Appointment</h2>
         <button class="modal-close-btn" id="btn-close-book">✕</button>
       </div>
       <div class="modal-body">
@@ -611,7 +673,7 @@ window.openRegisterPatientModal = function() {
   modal.innerHTML = `
     <div class="modal-dialog modal-lg">
       <div class="modal-header">
-        <h3 class="modal-title">Register New Clinic Patient</h3>
+        <h2 class="modal-title" style="font-size: 16px;">Register New Clinic Patient</h2>
         <button class="modal-close-btn" id="btn-close-reg">✕</button>
       </div>
       <div class="modal-body">
@@ -671,7 +733,7 @@ window.openRegisterPatientModal = function() {
         </div>
 
         <div style="border-top: 1px solid var(--border-subtle); margin: 16px 0; padding-top: 12px;">
-          <h4 style="font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Medical & Dental History</h4>
+          <h3 style="font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">Medical & Dental History</h3>
 
           <div class="form-group">
             <label class="form-label">Systemic Conditions (comma-separated)</label>
@@ -822,7 +884,7 @@ window.openCommunicationsModal = function(patientId, type = "SMS", defaultMsg = 
       <div class="modal-header">
         <div style="display: flex; align-items: center; gap: 8px;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          <h3 class="modal-title">Simulated Outbound Patient SMS</h3>
+          <h2 class="modal-title" style="font-size: 16px;">Simulated Outbound Patient SMS</h2>
         </div>
         <button class="modal-close-btn" id="btn-close-comm">✕</button>
       </div>
@@ -832,7 +894,7 @@ window.openCommunicationsModal = function(patientId, type = "SMS", defaultMsg = 
         <div class="phone-preview-shell">
           <div class="phone-screen">
             <div class="phone-header">
-              <span style="font-size: 11px; font-weight: 700; color: var(--color-slate-500);">9:41 AM</span>
+              <span style="font-size: 12px; font-weight: 700; color: var(--color-slate-600);">9:41 AM</span>
               <span style="font-size: 11.5px; font-weight: 700; color: var(--color-slate-900);">${patient.name}</span>
               <span style="font-size: 10px; color: var(--color-slate-400);">5G</span>
             </div>
@@ -910,7 +972,7 @@ window.openNewInvoiceModal = function(preselectedPatientId) {
   modal.innerHTML = `
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3 class="modal-title">Generate Patient Invoice</h3>
+        <h2 class="modal-title" style="font-size: 16px;">Generate Patient Invoice</h2>
         <button class="modal-close-btn" id="btn-close-inv-modal">✕</button>
       </div>
       <div class="modal-body">
@@ -1015,7 +1077,7 @@ window.openNewTreatmentPlanModal = function(preselectedPatientId) {
   modal.innerHTML = `
     <div class="modal-dialog">
       <div class="modal-header">
-        <h3 class="modal-title">Create Treatment Plan</h3>
+        <h2 class="modal-title" style="font-size: 16px;">Create Treatment Plan</h2>
         <button class="modal-close-btn" id="btn-close-tp-modal">✕</button>
       </div>
       <div class="modal-body">

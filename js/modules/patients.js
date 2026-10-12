@@ -78,39 +78,39 @@ export function renderPatients() {
                       </div>
                       <div>
                         <div style="font-weight: 700; color: var(--text-primary); font-size: 13.5px;">${p.name}</div>
-                        <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">${p.id}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); font-family: var(--font-mono);">${p.id}</div>
                       </div>
                     </div>
                   </td>
                   <td>
                     <div style="font-size: 13px; font-weight: 500;">${p.phone}</div>
-                    <div style="font-size: 11.5px; color: var(--text-muted);">${p.email}</div>
+                    <div style="font-size: 12.5px; color: var(--text-secondary);">${p.email}</div>
                   </td>
                   <td>
                     <div style="font-size: 13px;">${p.age} yrs · ${p.gender}</div>
-                    <div style="font-size: 11px; color: var(--text-muted);">Blood: ${p.bloodGroup || 'O+'}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">Blood: ${p.bloodGroup || 'O+'}</div>
                   </td>
                   <td>
-                    <div style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 240px;">
+                    <div style="display: flex; flex-wrap: wrap; gap: 5px; max-width: 250px;">
                       ${hasAllergies ? `
-                        <span class="badge badge-alert" style="font-size: 10.5px; padding: 1px 6px;">
+                        <span class="badge badge-alert">
                           ⚠️ ${p.medicalHistory.allergies[0]}
                         </span>
                       ` : ''}
                       ${conditions.slice(0, 2).map(c => `
-                        <span class="badge badge-scheduled" style="font-size: 10.5px; padding: 1px 6px;">
+                        <span class="badge badge-scheduled">
                           ${c}
                         </span>
                       `).join('')}
-                      ${!hasAllergies && conditions.length === 0 ? '<span style="color:var(--text-muted); font-size:12px;">None reported</span>' : ''}
+                      ${!hasAllergies && conditions.length === 0 ? '<span style="color:var(--text-secondary); font-size:12.5px;">None reported</span>' : ''}
                     </div>
                   </td>
                   <td>
                     <div style="font-size: 12.5px; font-weight: 600; color: var(--teal-800);">${p.nextAppointment || 'None'}</div>
-                    <div style="font-size: 11px; color: var(--text-muted);">Last: ${p.lastVisit}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">Last: ${p.lastVisit}</div>
                   </td>
                   <td>
-                    <div style="font-weight: 700; font-family: var(--font-mono); color: ${p.balance === '$0.00' ? 'var(--emerald-600)' : 'var(--crimson-600)'};">
+                    <div style="font-weight: 700; font-family: var(--font-mono); color: ${p.balance === '$0.00' ? 'var(--emerald-700)' : 'var(--crimson-700)'};">
                       ${p.balance}
                     </div>
                   </td>

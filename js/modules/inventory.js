@@ -38,7 +38,7 @@ export function renderInventory() {
           <div class="kpi-footer">Clinical consumables & medications</div>
         </div>
 
-        <div class="kpi-card ${totalLowStock > 0 ? 'kpi-highlight' : ''}" style="${totalLowStock > 0 ? 'border-color: rgba(217, 119, 6, 0.4); background: linear-gradient(135deg, #FFF 60%, #FFFBEB 100%);' : ''}">
+        <div class="kpi-card ${totalLowStock > 0 ? 'kpi-highlight' : ''}" style="${totalLowStock > 0 ? 'border: 1px solid #FDE68A; background: #FFFBEB;' : ''}">
           <div class="kpi-top">
             <span class="kpi-label">Low Stock Warnings</span>
             <div class="kpi-icon-wrap" style="background: var(--amber-50); color: var(--amber-700);">
@@ -128,9 +128,9 @@ export function renderInventory() {
               <tr>
                 <td>
                   <strong style="color: var(--text-primary); font-size: 13.5px;">${item.name}</strong>
-                  <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">${item.id}</div>
+                  <div style="font-size: 12px; color: var(--text-secondary); font-family: var(--font-mono);">${item.id}</div>
                 </td>
-                <td style="font-size: 12.5px;">${item.category}</td>
+                <td style="font-size: 13px;">${item.category}</td>
                 <td>
                   <span style="font-size: 15px; font-weight: 800; font-family: var(--font-mono); color: ${item.quantity <= item.threshold ? 'var(--crimson-600)' : 'var(--text-primary)'};">
                     ${item.quantity}
@@ -139,11 +139,11 @@ export function renderInventory() {
                 <td style="font-family: var(--font-mono); font-size: 13px; color: var(--color-slate-600);">
                   ${item.threshold}
                 </td>
-                <td style="font-size: 12px; color: var(--text-muted);">${item.unit}</td>
-                <td style="font-size: 12.5px; font-weight: 500;">${item.supplier}</td>
+                <td style="font-size: 12.5px; color: var(--text-secondary);">${item.unit}</td>
+                <td style="font-size: 13px; font-weight: 500;">${item.supplier}</td>
                 <td style="font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--teal-800);">$${(item.costPerUnit || 0).toFixed(2)}</td>
                 <td>
-                  <span class="badge badge-${item.status.includes('Alert') ? 'alert' : 'confirmed'}">
+                  <span class="badge badge-${item.status.includes('Alert') ? 'alert' : 'confirmed'}" style="font-size: 12.5px; padding: 4px 10px;">
                     ${item.status}
                   </span>
                 </td>
@@ -219,7 +219,7 @@ export function renderInventory() {
     modal.innerHTML = `
       <div class="modal-dialog">
         <div class="modal-header">
-          <h3 class="modal-title">Add New Clinical Supply Item</h3>
+          <h2 class="modal-title" style="font-size: 16px;">Add New Clinical Supply Item</h2>
           <button class="modal-close-btn" id="btn-close-inv-modal">✕</button>
         </div>
         <div class="modal-body">

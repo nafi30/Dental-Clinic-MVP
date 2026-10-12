@@ -61,7 +61,7 @@ export function renderPrescriptions() {
     container.innerHTML = `
       <div class="patients-toolbar">
         <div>
-          <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Electronic Prescription Generator</h3>
+          <h2 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Electronic Prescription Generator</h2>
           <p style="font-size: 12.5px; color: var(--text-muted);">Generate clinical scripts with allergy checking, dosage calculations & printable legal pad</p>
         </div>
       </div>
@@ -82,9 +82,9 @@ export function renderPrescriptions() {
       <div class="prescription-layout">
         <!-- Form Generator -->
         <div class="card" style="padding: 22px;">
-          <h4 style="font-size: 14.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">
+          <h3 style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 16px;">
             Order New Medication
-          </h4>
+          </h3>
 
           <div class="form-row">
             <div class="form-group">
@@ -150,24 +150,24 @@ export function renderPrescriptions() {
           <div class="rx-pad-header">
             <div>
               <div style="font-size: 16px; font-weight: 800; color: var(--color-slate-900);">${store.data.clinic.name}</div>
-              <div style="font-size: 11.5px; color: var(--text-muted);">${store.data.clinic.location} · ${store.data.clinic.phone}</div>
-              <div style="font-size: 11px; color: var(--color-slate-500); margin-top: 2px;">
+              <div style="font-size: 12.5px; color: var(--text-secondary);">${store.data.clinic.location} · ${store.data.clinic.phone}</div>
+              <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 3px;">
                 DEA: BV4921092 · NPI: 1942859102 · State Lic: #49210
               </div>
             </div>
             <div style="text-align: right;">
               <div class="rx-symbol">℞</div>
-              <div style="font-size: 11.5px; font-family: var(--font-mono); color: var(--color-slate-600); margin-top: 4px;">
+              <div style="font-size: 12.5px; font-family: var(--font-mono); color: var(--color-slate-700); margin-top: 4px;">
                 Date: 2026-10-12
               </div>
             </div>
           </div>
 
           <!-- Patient Subheader -->
-          <div style="margin-bottom: 20px; font-size: 12.5px; color: var(--color-slate-800); display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+          <div style="margin-bottom: 20px; font-size: 13px; color: var(--color-slate-800); display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
             <div>
               Patient: <strong>${patient ? patient.name : 'Selected Patient'}</strong>
-              <div style="font-size: 11.5px; color: var(--text-muted);">${patient ? `${patient.dob} (${patient.age} yrs)` : ''}</div>
+              <div style="font-size: 12.5px; color: var(--text-secondary);">${patient ? `${patient.dob} (${patient.age} yrs)` : ''}</div>
             </div>
             <div style="text-align: right;">
               Allergies: <strong>${patient && patient.medicalHistory && patient.medicalHistory.allergies ? patient.medicalHistory.allergies.join(', ') : 'NKDA'}</strong>
@@ -177,7 +177,7 @@ export function renderPrescriptions() {
           <!-- Prescription Body -->
           <div class="rx-body-box">
             <div class="rx-med-title" id="preview-rx-name">${activeTemplate.name}</div>
-            <div style="font-size: 13px; font-weight: 600; color: var(--teal-800); margin-bottom: 10px;">
+            <div style="font-size: 13.5px; font-weight: 600; color: var(--teal-800); margin-bottom: 10px;">
               Dispense: <span id="preview-rx-qty">${activeTemplate.quantity}</span> · Refills: <span id="preview-rx-refills">0</span>
             </div>
             <div class="rx-instructions">
@@ -187,7 +187,7 @@ export function renderPrescriptions() {
 
           <!-- Signature block -->
           <div class="rx-sig-line">
-            <div style="font-size: 11px; color: var(--text-muted);">
+            <div style="font-size: 12.5px; color: var(--text-secondary); font-family: var(--font-mono);">
               Security Hash: #DNT-941829-TX
             </div>
             <div class="sig-border">

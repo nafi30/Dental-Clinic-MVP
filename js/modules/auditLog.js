@@ -51,8 +51,8 @@ export function renderAuditLog() {
     container.innerHTML = `
       <div class="patients-toolbar">
         <div>
-          <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">HIPAA Compliance Audit Trail & Event Log</h3>
-          <p style="font-size: 12.5px; color: var(--text-muted);">Immutable audit records of user authentications, patient chart accesses, billing edits & AI automated actions</p>
+          <h2 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">HIPAA Compliance Audit Trail & Event Log</h2>
+          <p style="font-size: 13px; color: var(--text-secondary); max-width: 48ch; line-height: 1.5;">Immutable audit records of user logins, chart accesses, and AI receptionist events.</p>
         </div>
 
         <div style="display: flex; gap: 10px;">
@@ -102,33 +102,33 @@ export function renderAuditLog() {
               const isAi = (log.user || '').includes('AI');
               return `
                 <tr>
-                  <td style="font-family: var(--font-mono); font-size: 12px; color: var(--color-slate-600); white-space: nowrap;">
+                  <td style="font-family: var(--font-mono); font-size: 13px; color: var(--text-secondary); white-space: nowrap;">
                     ${log.timestamp}
                   </td>
                   <td>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                      <div class="user-avatar" style="width: 26px; height: 26px; font-size: 10px; ${isAi ? 'background:var(--teal-900); border-color:var(--teal-500);' : ''}">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <div class="user-avatar" style="width: 34px; height: 34px; font-size: 13px; font-weight: 700; ${isAi ? 'background: #0F766E; border-color: #0D9488;' : ''}">
                         ${isAi ? 'AI' : (log.user || 'U').split(' ').map(n=>n[0]).join('')}
                       </div>
                       <div>
-                        <strong style="font-size: 13px; color: var(--text-primary);">${log.user}</strong>
-                        <div style="font-size: 11px; color: var(--text-muted);">${log.role || 'Staff'}</div>
+                        <strong style="font-size: 13.5px; color: var(--text-primary);">${log.user}</strong>
+                        <div style="font-size: 12.5px; color: var(--text-secondary); font-weight: 500;">${log.role || 'Staff'}</div>
                       </div>
                     </div>
                   </td>
                   <td>
-                    <span class="badge ${isAi ? 'badge-ai' : (log.action.includes('Accessed') ? 'badge-confirmed' : 'badge-scheduled')}" style="font-size: 11px;">
+                    <span class="badge ${isAi ? 'badge-ai' : (log.action.includes('Accessed') ? 'badge-confirmed' : 'badge-scheduled')}" style="font-size: 12.5px; padding: 4px 10px;">
                       ${log.action}
                     </span>
                   </td>
                   <td style="font-size: 13px; color: var(--text-secondary); max-width: 380px;">
                     ${log.details}
                   </td>
-                  <td style="font-family: var(--font-mono); font-size: 11.5px; color: var(--color-slate-500);">
+                  <td style="font-family: var(--font-mono); font-size: 13.5px; color: var(--text-secondary);">
                     ${log.ip || '127.0.0.1'}
                   </td>
                   <td>
-                    <span class="badge badge-confirmed" style="font-size: 10.5px;">
+                    <span class="badge badge-confirmed" style="font-size: 12.5px; padding: 4px 10px;">
                       ✓ Verified
                     </span>
                   </td>

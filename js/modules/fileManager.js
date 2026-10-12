@@ -21,7 +21,7 @@ export function renderFileManager() {
 
       <div class="patients-toolbar">
         <div>
-          <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Diagnostic Imaging & Clinical Documents</h3>
+          <h2 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Diagnostic Imaging & Clinical Documents</h2>
           <p style="font-size: 12.5px; color: var(--text-muted);">Intraoral bitewings, panoramic radiographs, CBCT volume scans, and patient consent forms</p>
         </div>
 
@@ -84,7 +84,7 @@ export function renderFileManager() {
                         '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>'))}
                 </svg>
               `}
-              <span class="badge badge-teal" style="position: absolute; top: 10px; right: 10px; font-size: 10px;">
+              <span class="badge" style="position: absolute; top: 10px; right: 10px; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: var(--radius-sm); background: #FFFFFF; color: #1E293B; border: 1px solid #CBD5E1;">
                 ${file.type}
               </span>
             </div>
@@ -93,20 +93,20 @@ export function renderFileManager() {
               <strong style="font-size: 13.5px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block;">
                 ${file.title}
               </strong>
-              <div style="font-size: 12px; color: var(--teal-800); font-weight: 600; margin-top: 2px;">
+              <div style="font-size: 13px; color: var(--teal-800); font-weight: 600; margin-top: 2px;">
                 Patient: ${file.patientName}
               </div>
-              <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 3px;">
+              <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 3px;">
                 ${file.date} · ${file.size} · ${file.dentist}
               </div>
-              <p style="font-size: 11.5px; color: var(--text-secondary); margin-top: 6px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+              <p style="font-size: 13px; color: var(--text-secondary); margin-top: 6px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                 ${file.notes}
               </p>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-subtle);">
-                <button class="btn btn-secondary btn-sm btn-inspect-file" data-file-id="${file.id}" style="font-size: 11px; padding: 3px 8px;">
+                <button class="btn btn-secondary btn-sm btn-inspect-file" data-file-id="${file.id}" style="font-size: 12px; padding: 4px 10px;">
                   Lightbox View
                 </button>
-                <button class="btn btn-sm btn-delete-file" data-file-id="${file.id}" style="color: var(--crimson-600); background: transparent; border: none; font-size: 11px; cursor: pointer;" title="Delete file">
+                <button class="btn btn-sm btn-delete-file" data-file-id="${file.id}" style="color: var(--crimson-600); background: transparent; border: none; font-size: 12px; cursor: pointer;" title="Delete file">
                   🗑️ Delete
                 </button>
               </div>
@@ -224,7 +224,7 @@ export function renderFileManager() {
     modal.innerHTML = `
       <div class="modal-dialog">
         <div class="modal-header">
-          <h3 class="modal-title">Attach Diagnostic File</h3>
+          <h2 class="modal-title" style="font-size: 16px;">Attach Diagnostic File</h2>
           <button class="modal-close-btn" id="btn-close-upload-modal">✕</button>
         </div>
         <div class="modal-body">
@@ -232,7 +232,7 @@ export function renderFileManager() {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--teal-600)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             <div>
               <strong style="font-size: 13.5px; color: var(--text-primary);">${file.name}</strong>
-              <div style="font-size: 11.5px; color: var(--text-muted);">${fileSizeMb} MB · ${file.type || 'DICOM/Raw'}</div>
+              <div style="font-size: 12.5px; color: var(--text-secondary);">${fileSizeMb} MB · ${file.type || 'DICOM/Raw'}</div>
             </div>
           </div>
 
@@ -356,17 +356,17 @@ export function renderFileManager() {
     modal.className = 'modal-overlay active';
 
     modal.innerHTML = `
-      <div class="modal-dialog modal-xl" style="background: #0B1320; color: #FFFFFF; border-color: rgba(45, 212, 191, 0.3);">
-        <div class="modal-header" style="background: #070D17; border-color: rgba(255, 255, 255, 0.1);">
+      <div class="modal-dialog modal-xl" style="background: #0F172A; color: #FFFFFF; border: 1px solid #334155;">
+        <div class="modal-header" style="background: #020617; border-bottom: 1px solid #334155;">
           <div>
-            <h3 class="modal-title" style="color: #FFFFFF;">${file.title}</h3>
-            <div style="font-size: 12px; color: var(--color-slate-400);">${file.type} · Patient: ${file.patientName} (${file.patientId})</div>
+            <h2 class="modal-title" style="color: #FFFFFF; font-size: 17px;">${file.title}</h2>
+            <div style="font-size: 12.5px; color: var(--color-slate-300);">${file.type} · Patient: ${file.patientName} (${file.patientId})</div>
           </div>
           <button class="modal-close-btn" id="btn-close-lightbox" style="color: #FFFFFF;">✕</button>
         </div>
 
-        <div class="modal-body" style="padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; background: #090E17;">
-          <div style="width: 100%; max-width: 720px; max-height: 420px; border-radius: var(--radius-lg); background: #020617; border: 1px solid rgba(45, 212, 191, 0.3); display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+        <div class="modal-body" style="padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; background: #0B0F19;">
+          <div style="width: 100%; max-width: 720px; max-height: 420px; border-radius: var(--radius-lg); background: #020617; border: 1px solid #334155; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden;">
             ${file.url ? `
               <img src="${file.url}" alt="${file.title}" style="max-width: 100%; max-height: 400px; object-fit: contain;">
             ` : `

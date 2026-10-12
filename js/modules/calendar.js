@@ -280,15 +280,15 @@ export function renderCalendar() {
            draggable="true"
            title="Click to view details or DRAG to reschedule to another chair/time">
         <div class="appt-event-patient">
-          <span style="cursor: grab; margin-right: 3px; opacity: 0.6;">⠿</span>
+          <span style="cursor: grab; margin-right: 4px; opacity: 0.6;">⠿</span>
           ${appt.patientName}
-          ${appt.isAiBooked ? '<span class="badge badge-ai" style="padding:1px 5px; font-size:9.5px; margin-left:4px;">AI Booked</span>' : ''}
-          ${isDoubleBooked ? '<span class="badge badge-alert" style="padding:1px 4px; font-size:9px; margin-left:2px;">⚠️ Conflict Override</span>' : ''}
+          ${appt.isAiBooked ? '<span class="badge badge-ai" style="margin-left:6px;">AI Booked</span>' : ''}
+          ${isDoubleBooked ? '<span class="badge badge-alert" style="margin-left:4px;">⚠️ Conflict</span>' : ''}
         </div>
         <div class="appt-event-proc">${appt.treatment}</div>
         <div class="appt-event-footer">
           <span>${appt.time} (${appt.duration})</span>
-          <span class="badge badge-${appt.status.toLowerCase().replace(/[^a-z0-9]/g, '-')}" style="font-size:10px; padding:1px 6px;">${appt.status}</span>
+          <span class="badge badge-${appt.status.toLowerCase().replace(/[^a-z0-9]/g, '-')}">${appt.status}</span>
         </div>
       </div>
     `;
@@ -446,7 +446,7 @@ export function renderCalendar() {
         <div class="modal-header" style="background: var(--crimson-50); border-bottom-color: var(--crimson-200);">
           <div style="display: flex; align-items: center; gap: 8px; color: var(--crimson-800);">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            <h3 class="modal-title" style="color: var(--crimson-800);">Operatory Double-Booking Conflict Detected</h3>
+            <h2 class="modal-title" style="color: var(--crimson-800); font-size: 16px;">Operatory Double-Booking Conflict Detected</h2>
           </div>
           <button class="modal-close-btn" id="btn-close-conflict">✕</button>
         </div>
@@ -456,10 +456,10 @@ export function renderCalendar() {
             <strong>${targetChair}</strong> is already reserved at <strong>${targetTime}</strong> for:
           </p>
 
-          <div style="margin: 14px 0; padding: 12px 16px; background: var(--color-slate-100); border-radius: var(--radius-md); border-left: 4px solid var(--crimson-600);">
-            <div style="font-weight: 700; color: var(--color-slate-900);">${existingAppt.patientName}</div>
-            <div style="font-size: 12px; color: var(--color-slate-600);">${existingAppt.treatment} · Provider: ${existingAppt.dentistName}</div>
-            <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">Reserved Duration: ${existingAppt.duration}</div>
+          <div style="margin: 14px 0; padding: 12px 16px; background: #FEF2F2; border-radius: var(--radius-md); border: 1px solid #FECACA;">
+            <div style="font-weight: 700; color: var(--color-slate-900); font-size: 14px;">${existingAppt.patientName}</div>
+            <div style="font-size: 13px; color: var(--color-slate-700);">${existingAppt.treatment} · Provider: ${existingAppt.dentistName}</div>
+            <div style="font-size: 12.5px; color: var(--text-secondary); margin-top: 2px;">Reserved Duration: ${existingAppt.duration}</div>
           </div>
 
           <p style="font-size: 13px; color: var(--color-slate-600);">

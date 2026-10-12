@@ -67,7 +67,7 @@ export function renderBilling() {
       <!-- Toolbar -->
       <div class="patients-toolbar" style="margin-top: 20px;">
         <div>
-          <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Patient Invoices & Statements</h3>
+          <h2 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Patient Invoices & Statements</h2>
           <p style="font-size: 12.5px; color: var(--text-muted);">Itemized statements, copay collections & payment records</p>
         </div>
 

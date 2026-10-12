@@ -13,7 +13,7 @@ export function renderTreatmentPlan() {
   container.innerHTML = `
     <div class="patients-toolbar">
       <div>
-        <h3 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Active Clinical Treatment Plans</h3>
+        <h2 style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Active Clinical Treatment Plans</h2>
         <p style="font-size: 12.5px; color: var(--text-muted);">Custom treatment courses formulated by dentists with stage progression & cost breakdown</p>
       </div>
 

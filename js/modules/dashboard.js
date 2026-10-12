@@ -40,7 +40,7 @@ export function renderDashboard() {
         </div>
       </div>
 
-      <div class="kpi-card kpi-highlight">
+      <div class="kpi-card">
         <div class="kpi-top">
           <span class="kpi-label">AI Recovered Calls</span>
           <div class="kpi-icon-wrap">
@@ -49,7 +49,7 @@ export function renderDashboard() {
         </div>
         <div class="kpi-val" id="dash-recovered-calls" style="color: var(--teal-700);">${aiMetrics.recoveredCalls}</div>
         <div class="kpi-footer">
-          <span class="badge badge-recovered" style="padding: 2px 6px; font-size: 11px;">${aiMetrics.recoveryRate} capture</span> after-hours & overflow
+          <span class="badge badge-recovered">${aiMetrics.recoveryRate} capture</span> after-hours & overflow
         </div>
       </div>
 
@@ -75,27 +75,27 @@ export function renderDashboard() {
         </div>
         <div class="kpi-val" id="dash-pending-rev">$${pendingAmount.toLocaleString()}</div>
         <div class="kpi-footer">
-          <span style="color: var(--amber-700); font-weight: 600;">${pendingInvoices.length} invoices</span> awaiting copay/clearance
+          <span class="badge badge-scheduled">${pendingInvoices.length} invoices</span> awaiting copay/clearance
         </div>
       </div>
     </div>
 
-    <!-- Centerpiece Hero Call Action Banner -->
+    <!-- Centerpiece Operations Call Action Banner -->
     <div class="ai-hero-banner">
       <div class="ai-banner-content">
         <div class="ai-banner-tag">
-          <span class="ai-pulse-dot" style="display:inline-block; margin-left:0; margin-right:4px;"></span>
-          Aesora AI Voice Agent · Live & Monitoring
+          <span class="ai-pulse-dot" style="display:inline-block; margin-left:0; margin-right:6px;"></span>
+          Automated Call Triage · Active Monitoring
         </div>
-        <h2 class="ai-banner-heading">Never Lose Another High-Value Patient to Voicemail</h2>
+        <h2 class="ai-banner-heading">After-Hours Voice Intake & Clinical Urgency Triage</h2>
         <p class="ai-banner-desc">
-          When patients call after 5:00 PM or when front desk phones are busy, our AI answers in 2 rings, triages dental urgency, schedules the appointment, and logs the patient into your CRM instantly.
+          When patients call after hours or front-desk lines are busy, our assistant answers immediately, assesses clinical urgency, and reserves the operatory chair in your calendar.
         </p>
       </div>
       <div>
-        <button class="btn btn-simulate-call" id="btn-banner-sim-call" style="padding: 12px 24px; font-size: 14px;">
+        <button class="btn btn-simulate-call" id="btn-banner-sim-call" style="padding: 10px 20px; font-size: 13.5px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          Simulate Incoming Patient Call
+          Simulate Inbound Patient Call
         </button>
       </div>
     </div>
@@ -120,15 +120,15 @@ export function renderDashboard() {
               todayAppts.map(apt => `
                 <div class="timeline-item" data-apt-id="${apt.id}" style="cursor: pointer;">
                   <span class="time-slot-badge">${apt.time}</span>
-                  <div>
+                  <div style="flex: 1;">
                     <div class="timeline-patient-name">
                       ${apt.patientName}
-                      ${apt.isAiBooked ? '<span class="badge badge-ai" style="margin-left:6px; font-size:10px; padding:1px 6px;">AI Booked</span>' : ''}
+                      ${apt.isAiBooked ? '<span class="badge badge-ai" style="margin-left:8px;">AI Booked</span>' : ''}
                     </div>
                     <div class="timeline-patient-proc">${apt.treatment}</div>
                   </div>
                   <div class="timeline-provider">
-                    <div>${apt.operatory.split(' ')[0]} ${apt.operatory.split(' ')[1]}</div>
+                    <div style="margin-bottom: 4px;">${apt.operatory.split(' ')[0]} ${apt.operatory.split(' ')[1]}</div>
                     <span class="badge badge-${apt.status.toLowerCase().replace(' ', '-')}">${apt.status}</span>
                   </div>
                 </div>
@@ -157,11 +157,11 @@ export function renderDashboard() {
                 <div class="call-meta-col">
                   <div class="call-patient-title">
                     ${call.patientName}
-                    <span class="badge badge-recovered" style="font-size:10.5px;">+$${call.estimatedRevenue}</span>
+                    <span class="badge badge-recovered">+$${call.estimatedRevenue}</span>
                   </div>
-                  <div class="call-summary-snippet">${call.intent} · <span style="color:var(--text-muted);">${call.time}</span></div>
+                  <div class="call-summary-snippet">${call.intent} · <span style="color:var(--text-secondary); font-weight: 500;">${call.time}</span></div>
                 </div>
-                <button class="btn btn-secondary btn-sm" style="padding:4px 8px; font-size:11px;">Transcript</button>
+                <button class="btn btn-secondary btn-sm" style="padding:5px 12px; font-size:12px;">Transcript</button>
               </div>
             `).join('')}
           </div>
