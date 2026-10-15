@@ -20,6 +20,11 @@ const dbPath = process.env.DB_PATH
   ? path.resolve(process.cwd(), process.env.DB_PATH)
   : path.resolve(dbDir, 'clinic.db');
 
+const targetDir = path.dirname(dbPath);
+if (!fs.existsSync(targetDir)) {
+  fs.mkdirSync(targetDir, { recursive: true });
+}
+
 export const db = new DatabaseSync(dbPath);
 
 // Enable WAL mode for optimal concurrent performance

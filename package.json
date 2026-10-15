@@ -9,6 +9,9 @@
     "dev": "node --watch server/server.js",
     "test": "node --test tests/*.test.js"
   },
+  "engines": {
+    "node": ">=22.5.0"
+  },
   "keywords": [
     "dental",
     "clinic-management",

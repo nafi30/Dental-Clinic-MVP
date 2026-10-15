@@ -179,6 +179,35 @@ The backend is built with **Node.js, Express, WebSockets (`ws`), and built-in SQ
 
 ---
 
+## ☁️ Deploying & Hosting on Render
+
+This application is 100% pre-configured for deployment on [Render](https://render.com).
+
+### Option A: 1-Click Render Blueprint (Recommended)
+1. Push your repository to GitHub.
+2. In Render Dashboard, click **New +** → **Blueprint**.
+3. Connect your GitHub repository (`https://github.com/nafi30/Dental-Clinic-MVP`).
+4. Render will automatically detect [`render.yaml`](file:///d:/New%20folder%20%283%29/render.yaml) and configure the web service with Node 22, health checks, and build settings.
+5. Click **Apply** to deploy!
+
+### Option B: Manual Web Service Setup
+If creating a Web Service manually:
+1. In Render Dashboard, click **New +** → **Web Service**.
+2. Connect your GitHub repository.
+3. Configure settings:
+   - **Name:** `dental-clinic-mvp`
+   - **Environment:** `Node`
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+   - **Plan:** `Free`
+4. Under **Advanced** → **Environment Variables**:
+   - `NODE_VERSION`: `22.14.0` (Required for built-in `node:sqlite`)
+   - `NODE_ENV`: `production`
+5. Under **Health Check Path**: `/api/health`
+6. Click **Create Web Service**. Render will provision your app with free SSL, HTTPS, and live WebSockets!
+
+---
+
 ## 📄 License
 
 Proprietary — All rights reserved. Created for sales demonstrations and clinical management systems.
